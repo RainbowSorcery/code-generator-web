@@ -10,6 +10,9 @@ import router from './router'
 import 'ant-design-vue/dist/antd.css';
 import axios from 'axios';
 
+// axios配置
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
+
 const app = createApp(App)
 
 app.use(createPinia())
@@ -18,4 +21,3 @@ app.use(Antd)
 
 app.mount('#app')
 
-axios.defaults.baseURL = import.meta.env.BASE_URL

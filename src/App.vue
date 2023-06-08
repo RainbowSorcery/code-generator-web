@@ -29,7 +29,6 @@ import enumsAPI from '@/api/enums'
 
     let a = enumsAPI.swaggerStatusEnum()
 
-    console.log(import.meta.env.BASE_URL)
 
 
 </script>

@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+
+/**
+ * 获取swagger版本枚举
+ */
 class EnumsAPI {
     public swaggerStatusEnum() {
         axios.get("/enums/swaggerStatusEnum").then(response => {
