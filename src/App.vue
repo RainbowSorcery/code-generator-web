@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { defineComponent, reactive, toRaw, ref, UnwrapRef, onMounted } from 'vue';
-import enumsAPI from '@/api/enums'
-import { Item } from 'ant-design-vue/lib/menu';
-interface Generator {
+import { reactive, ref, onMounted } from 'vue';
+import type { UnwrapRef } from 'vue'
+import type { TreeSelectProps } from 'ant-design-vue';
+import { saveAs } from 'file-saver';
+import enumsAPI from '@/api/Enums.js'
+import generatorCodeAPI from '@/api/GeneratorCondeAPI.js'
+import stringUtils from '@/utils/StringUtils'
+
+interface GeneratorDTO {
   ip?: string
   port?: number
   username?: string
   password?: string
   generateTypeCode?: number
   database?: string
-  tableName?: string
+  tableName: string
   swaggerStatus?: number
   packageName?: string
-  templateGroup?: string
+  templateGroupId?: Number
 }
 
-const fromGenerator: UnwrapRef<Generator> = reactive({
+const fromGenerator: UnwrapRef<GeneratorDTO> = reactive({
   "username": "",
   "password": "",
   "generateTypeCode": undefined,
@@ -24,7 +29,7 @@ const fromGenerator: UnwrapRef<Generator> = reactive({
   "database": "",
   "swaggerStatus": undefined,
   "packageName": "",
-  "templateGroup": "",
+  "templateGroupId": undefined,
   "tableName": ""
 });
 
@@ -32,6 +37,9 @@ const fromGenerator: UnwrapRef<Generator> = reactive({
 
 const swaggerStatus = ref([]);
 const generateTypeStatus = ref([])
+const treeData = ref<TreeSelectProps['treeData']>([]);
+const codeContent = ref()
+const showDownLoadButton = ref(false)
 
 onMounted(async () => {
   const response = await enumsAPI.swaggerStatusEnum()
@@ -43,9 +51,20 @@ onMounted(async () => {
   generateTypeStatus.value = response
 })
 
+onMounted(async () => {
+  const response = await enumsAPI.templateGroupTree()
+  treeData.value = response
+})
 
-console.log(generateTypeStatus)
+const generatorCode = async () => {
+  codeContent.value = await generatorCodeAPI.generatorCode(fromGenerator)
+  showDownLoadButton.value = true
+}
 
+const downloadCode = () => {
+  let str = new Blob([codeContent.value], {type: 'text/plain;charset=utf-8'});
+  saveAs(str,  stringUtils.toCamelCase(fromGenerator.tableName) +  ".java")
+}
 
 </script>
 
@@ -78,8 +97,8 @@ console.log(generateTypeStatus)
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item v-model:value="fromGenerator.password" name="password" label="MySQL密码">
-                <a-input></a-input>
+              <a-form-item name="password" label="MySQL密码">
+                <a-input v-model:value="fromGenerator.password"></a-input>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -103,14 +122,27 @@ console.log(generateTypeStatus)
           </a-form-item>
 
           <a-form-item name="templateGroup" label="模板group">
-            <a-input v-model:value="fromGenerator.templateGroup"></a-input>
+            <a-tree-select v-model:value="fromGenerator.templateGroupId" style="width: 100%"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }" :treeData="treeData" placeholder="请选择父节点"
+              :fieldNames="{
+                children: 'children',
+                label: 'groupName',
+                value: 'id'
+              }" allow-clear tree-default-expand-all>
+            </a-tree-select>
           </a-form-item>
           <a-form-item name="generateTypeCode" label="生成类型">
             <a-radio-group v-model:value="fromGenerator.generateTypeCode">
               <a-radio :key="key" v-for="(value, key) in generateTypeStatus" :value="key">{{ value }}</a-radio>
             </a-radio-group>
           </a-form-item>
+
+          <a-form-item :wrapper-col="{ }">
+            <a-button type="primary" html-type="submit" @click="generatorCode">生成</a-button>
+            <a-button style="margin-left: 10px" v-if="showDownLoadButton && codeContent !== null" @click="downloadCode">下载</a-button>
+          </a-form-item>
         </a-form>
+        <a-textarea v-model:value="codeContent" :rows="15" />
       </div>
     </a-layout-content>
     <a-layout-footer style="text-align: center">

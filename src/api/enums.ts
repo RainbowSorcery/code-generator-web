@@ -23,6 +23,14 @@ class EnumsAPI {
 
         return data
     }
+
+    public async templateGroupTree() {
+        const data = await axios.get("/enums/templateGroupTree").then(response => {
+            return response.data.data;
+        })
+
+        return data;
+    }
 }
 
 
