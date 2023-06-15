@@ -41,6 +41,8 @@ const treeData = ref<TreeSelectProps['treeData']>([]);
 const codeContent = ref()
 const showDownLoadButton = ref(false)
 
+const gennertorTypeName = ref("")
+
 onMounted(async () => {
   const response = await enumsAPI.swaggerStatusEnum()
   swaggerStatus.value = response
@@ -63,7 +65,7 @@ const generatorCode = async () => {
 
 const downloadCode = () => {
   let str = new Blob([codeContent.value], {type: 'text/plain;charset=utf-8'});
-  saveAs(str,  stringUtils.toCamelCase(fromGenerator.tableName) +  ".java")
+  saveAs(str,  stringUtils.toCamelCase(fromGenerator.tableName) + gennertorTypeName.value +  ".java")
 }
 
 </script>
@@ -112,7 +114,10 @@ const downloadCode = () => {
               </a-form-item>
             </a-col>
           </a-row>
-
+          <a-form-item name="swagger" label="包名称">
+            <a-input v-model:value="fromGenerator.packageName"></a-input>
+            <!-- <a-input v-model:value="fromGenerator.swaggerStatus"></a-input> -->
+          </a-form-item>
 
           <a-form-item name="swagger" label="swagger">
             <a-radio-group v-model:value="fromGenerator.swaggerStatus">
