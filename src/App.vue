@@ -6,6 +6,8 @@ import { saveAs } from 'file-saver';
 import enumsAPI from '@/api/Enums.js'
 import generatorCodeAPI from '@/api/GeneratorCondeAPI.js'
 import stringUtils from '@/utils/StringUtils'
+import MysqlGenertor from "@/views/MysqlGenertor.vue"
+import MongoGenertor from "@/views/MongoGenertor.vue"
 
 interface GeneratorDTO {
   ip?: string
@@ -64,9 +66,11 @@ const generatorCode = async () => {
 }
 
 const downloadCode = () => {
-  let str = new Blob([codeContent.value], {type: 'text/plain;charset=utf-8'});
-  saveAs(str,  stringUtils.toCamelCase(fromGenerator.tableName) + gennertorTypeName.value +  ".java")
+  let str = new Blob([codeContent.value], { type: 'text/plain;charset=utf-8' });
+  saveAs(str, stringUtils.toCamelCase(fromGenerator.tableName) + gennertorTypeName.value + ".java")
 }
+
+
 
 </script>
 
@@ -74,81 +78,16 @@ const downloadCode = () => {
   <a-layout class="layout">
     <a-layout-header>
       <div class="logo" />
-
     </a-layout-header>
     <a-layout-content style="padding: 0 50px; min-height: 795px;">
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>代码生成</a-breadcrumb-item>
-      </a-breadcrumb>
-      <div :style="{ background: '#fff', padding: '24px', minHeight: '750px' }">
-        <a-form :model="fromGenerator">
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item name="ip" label="ip">
-                <a-input v-model:value="fromGenerator.ip"></a-input>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="port" label="端口">
-                <a-input v-model:value="fromGenerator.port"></a-input>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="username" label="MySQL用户名">
-                <a-input v-model:value="fromGenerator.username"></a-input>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="password" label="MySQL密码">
-                <a-input v-model:value="fromGenerator.password"></a-input>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="tableName" label="表名称">
-                <a-input v-model:value="fromGenerator.tableName"></a-input>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="数据库名称" label="database">
-                <a-input v-model:value="fromGenerator.database"></a-input>
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-form-item name="swagger" label="包名称">
-            <a-input v-model:value="fromGenerator.packageName"></a-input>
-            <!-- <a-input v-model:value="fromGenerator.swaggerStatus"></a-input> -->
-          </a-form-item>
-
-          <a-form-item name="swagger" label="swagger">
-            <a-radio-group v-model:value="fromGenerator.swaggerStatus">
-              <a-radio :key="key" v-for="(value, key) in swaggerStatus" :value="key">{{ value }}</a-radio>
-            </a-radio-group>
-            <!-- <a-input v-model:value="fromGenerator.swaggerStatus"></a-input> -->
-          </a-form-item>
-
-          <a-form-item name="templateGroup" label="模板group">
-            <a-tree-select v-model:value="fromGenerator.templateGroupId" style="width: 100%"
-              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }" :treeData="treeData" placeholder="请选择父节点"
-              :fieldNames="{
-                children: 'children',
-                label: 'groupName',
-                value: 'id'
-              }" allow-clear tree-default-expand-all>
-            </a-tree-select>
-          </a-form-item>
-          <a-form-item name="generateTypeCode" label="生成类型">
-            <a-radio-group v-model:value="fromGenerator.generateTypeCode">
-              <a-radio :key="key" v-for="(value, key) in generateTypeStatus" :value="key">{{ value }}</a-radio>
-            </a-radio-group>
-          </a-form-item>
-
-          <a-form-item :wrapper-col="{ }">
-            <a-button type="primary" html-type="submit" @click="generatorCode">生成</a-button>
-            <a-button style="margin-left: 10px" v-if="showDownLoadButton && codeContent !== null" @click="downloadCode">下载</a-button>
-          </a-form-item>
-        </a-form>
-        <a-textarea v-model:value="codeContent" :rows="15" />
-      </div>
+      <a-tabs>
+        <a-tab-pane key="1" tab="MySQL">
+          <mysql-genertor></mysql-genertor>
+        </a-tab-pane>
+        <a-tab-pane key="2" tab="Mongo">
+          <mongo-genertor></mongo-genertor>
+        </a-tab-pane>
+      </a-tabs>
     </a-layout-content>
     <a-layout-footer style="text-align: center">
       code generator 2023 Created by Lyra
